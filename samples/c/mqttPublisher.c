@@ -8,6 +8,8 @@
  *
  * Contributors:
  *   rajathr1 - Initial Contribution
+ *   timroster - change subscription to run commands based on time_delay value
+ *
  *******************************************************************************/
 
 #include <stdio.h>
@@ -122,12 +124,25 @@ int subscribeMessage(void *context, char *topicName, int topicLen,
 	payloadptr = message->payload;
 
 	time_delay = getDelay(payloadptr);
-	if(time_delay != -1) {
-		sprintf(command,"sudo /sbin/shutdown -r %d", time_delay);
-		syslog(LOG_INFO, "Received command to restart in %d minutes.",time_delay);
-		system(command);
-	} else
-		syslog(LOG_ERR, "Invalid command received.");
+
+/*
+*	if(time_delay != -1) {
+*		sprintf(command,"sudo /sbin/shutdown -r %d", time_delay);
+*		syslog(LOG_INFO, "Received command to restart in %d minutes.",time_delay);
+*		system(command);
+*	} else
+*		syslog(LOG_ERR, "Invalid command received.");
+*
+*/
+      	if(time_delay == 1) {
+		system("sudo /usr/bin/python /home/pi/led.py red");
+	} 
+        if(time_delay == 2) {
+		system("sudo /usr/bin/python /home/pi/led.py yellow");
+	} 
+        if(time_delay == 3) {
+		system("sudo /usr/bin/python /home/pi/led.py green");
+        }
 
 	MQTTAsync_freeMessage(&message);
 	MQTTAsync_free(topicName);
